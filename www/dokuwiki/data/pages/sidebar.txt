@@ -1,0 +1,10 @@
+===== Hot Topics =====
+ new vacation 8-)
+
+===== IT Infrastructure =====
+  * [[infra:windows:Windows]]
+  * [[infra:linux:Linux]] 
+  * [[infra:network:Network]]
+  * [[infra:network:Storage]]
+===== Nothing special =====
+

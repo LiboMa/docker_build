@@ -1,0 +1,113 @@
+<span class="co0">#!/bin/sh</span>
+<span class="co0"># This is script is used for implementing a ssl tunnel via SSH. Forwarding remote port to local port 11945.</span>
+<span class="co0"># Wirtten by Libo.Ma @ 2014.2.19 Wed Feb 19 22:59:38 CST 2014</span>
+<span class="co0"># Draft version 1.0</span>
+&nbsp;
+<span class="re2">curdir</span>=$<span class="br0">&#40;</span><span class="kw3">cd</span> <span class="sy0">`</span><span class="kw2">dirname</span> <span class="re4">$0</span><span class="sy0">`</span>;<span class="kw3">pwd</span><span class="br0">&#41;</span>
+<span class="re2">pidfile</span>=<span class="re1">$curdir</span><span class="sy0">/</span>sshtunnl.pid
+<span class="re2">logfile</span>=<span class="re1">$curdir</span><span class="sy0">/</span>sshtunnl.log
+&nbsp;
+start <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+&nbsp;
+<span class="co0"># Check pid </span>
+<span class="co0">#if [ -f $pidfile ] &amp;&amp; ps aux |grep ssh |grep -q `cat $pidfile`</span>
+<span class="kw1">if</span> <span class="br0">&#91;</span> <span class="re5">-f</span> <span class="re1">$pidfile</span> <span class="br0">&#93;</span> <span class="sy0">&amp;&amp;</span> pgrep <span class="re5">-q</span> <span class="re5">-F</span> <span class="re1">$pidfile</span> <span class="co0"># updated on 2015.6.17</span>
+<span class="kw1">then</span>
+    <span class="kw3">echo</span> <span class="st0">&quot;SSH tunnel is running.&quot;</span>
+    <span class="kw3">exit</span> <span class="nu0">0</span>
+<span class="kw1">else</span>
+    <span class="co0"># Startup running proc</span>
+    <span class="co0">#nohup ssh -N -L 11945:54.215.124.210:11945 ronniema@54.215.124.210 -i $HOME/.ssh/ronniema.pam &gt;$logfile 2&gt;&amp;1 &amp;</span>
+    <span class="kw2">nohup</span> <span class="kw2">ssh</span> <span class="re5">-N</span> <span class="re5">-L</span> <span class="nu0">31288</span>:127.0.0.1:<span class="nu0">31288</span> root<span class="sy0">@</span><span class="re1">$server</span> <span class="re5">-i</span> <span class="re1">$HOME</span><span class="sy0">/</span>.ssh<span class="sy0">/</span>id_rsa <span class="sy0">&gt;</span><span class="re1">$logfile</span> <span class="nu0">2</span><span class="sy0">&gt;&amp;</span><span class="nu0">1</span> <span class="sy0">&amp;</span>
+    <span class="kw1">if</span> <span class="br0">&#91;</span> <span class="re4">$?</span> <span class="re5">-eq</span> <span class="nu0">0</span> <span class="br0">&#93;</span>;<span class="kw1">then</span>
+        <span class="kw3">echo</span> <span class="st0">&quot;$!&quot;</span> <span class="sy0">&gt;</span><span class="re1">$pidfile</span>
+        <span class="kw3">echo</span> <span class="st0">&quot;vpn tunnel is up&quot;</span>
+    <span class="kw1">fi</span>
+<span class="kw1">fi</span>
+&nbsp;
+<span class="br0">&#125;</span>
+&nbsp;
+stop <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+&nbsp;
+    <span class="co0"># Check pid</span>
+&nbsp;
+    <span class="co0"># Check pidfile</span>
+    <span class="br0">&#91;</span> <span class="sy0">!</span> <span class="re5">-f</span> <span class="re1">$pidfile</span> <span class="br0">&#93;</span> <span class="sy0">&amp;&amp;</span> <span class="br0">&#123;</span> <span class="kw3">echo</span> <span class="st0">&quot;no running&quot;</span>; <span class="kw3">return</span> <span class="nu0">1</span>; <span class="br0">&#125;</span> <span class="sy0">||</span> <span class="re2">pid</span>=<span class="sy0">`</span><span class="kw2">cat</span> <span class="re1">$pidfile</span><span class="sy0">`</span>
+    <span class="co0"># Check running process of ssh tunnel</span>
+    <span class="kw1">if</span> pgrep <span class="re5">-q</span> <span class="re5">-F</span> <span class="re1">$pidfile</span> <span class="co0"># updated on 2015.6.17</span>
+    <span class="kw1">then</span>
+        <span class="kw2">kill</span> <span class="re5">-KILL</span> <span class="re1">$pid</span> <span class="sy0">&amp;&amp;</span> <span class="br0">&#123;</span> <span class="kw2">rm</span> <span class="re1">$pidfile</span>; <span class="kw3">return</span> <span class="nu0">0</span>; <span class="br0">&#125;</span>
+    <span class="kw1">else</span>
+        <span class="kw3">echo</span> <span class="st0">&quot;ssh tunnel not running...&quot;</span>
+        <span class="kw3">return</span> <span class="nu0">1</span>
+    <span class="kw1">fi</span>
+&nbsp;
+<span class="br0">&#125;</span>
+&nbsp;
+reload <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+&nbsp;
+    <span class="co0"># Check pidfile</span>
+    <span class="br0">&#91;</span> <span class="sy0">!</span> <span class="re5">-f</span> <span class="re1">$pidfile</span> <span class="br0">&#93;</span> <span class="sy0">&amp;&amp;</span> <span class="br0">&#123;</span> <span class="kw3">echo</span> <span class="st0">&quot;no running&quot;</span>; <span class="kw3">exit</span> <span class="nu0">1</span>; <span class="br0">&#125;</span> <span class="sy0">||</span> <span class="re2">pid</span>=<span class="sy0">`</span><span class="kw2">cat</span> <span class="re1">$pidfile</span><span class="sy0">`</span>
+&nbsp;
+    <span class="co0"># Reload configuration...</span>
+    <span class="co0">#if ps aux |grep ssh |grep -q $pid</span>
+    <span class="kw1">if</span> pgrep <span class="re5">-q</span> <span class="re5">-F</span> <span class="re1">$pidfile</span> <span class="co0"># updated on 2015.6.17</span>
+    <span class="kw1">then</span>
+        <span class="kw2">kill</span> <span class="re5">-HUP</span> <span class="re1">$pid</span> <span class="sy0">&amp;&amp;</span> <span class="kw3">return</span> <span class="nu0">0</span>
+    <span class="kw1">else</span>
+        <span class="kw3">echo</span> <span class="st0">&quot;ssh tunnel not running...&quot;</span>
+        <span class="kw3">exit</span> <span class="nu0">1</span>
+    <span class="kw1">fi</span>
+&nbsp;
+<span class="br0">&#125;</span>
+&nbsp;
+status <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+&nbsp;
+    <span class="co0"># Check pidfile</span>
+    <span class="br0">&#91;</span> <span class="sy0">!</span> <span class="re5">-f</span> <span class="re1">$pidfile</span> <span class="br0">&#93;</span> <span class="sy0">&amp;&amp;</span> <span class="br0">&#123;</span> <span class="kw3">echo</span> <span class="st0">&quot;no running&quot;</span>; <span class="kw3">exit</span> <span class="nu0">1</span>; <span class="br0">&#125;</span> <span class="sy0">||</span> <span class="re2">pid</span>=<span class="sy0">`</span><span class="kw2">cat</span> <span class="re1">$pidfile</span><span class="sy0">`</span>
+&nbsp;
+    <span class="kw1">if</span> pgrep <span class="re5">-q</span> <span class="re5">-F</span> <span class="re1">$pidfile</span> <span class="co0"># updated on 2015.6.17</span>
+    <span class="kw1">then</span>
+        <span class="kw3">echo</span> <span class="st0">&quot;Tunnel is running with pid <span class="es2">$pid</span>&quot;</span>
+    <span class="kw1">else</span>
+        <span class="kw3">echo</span> <span class="st0">&quot;Tunnel service NOT running&quot;</span>
+        <span class="kw3">return</span> <span class="nu0">1</span>
+    <span class="kw1">fi</span>
+<span class="br0">&#125;</span>
+&nbsp;
+<span class="kw3">help</span><span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+&nbsp;
+    <span class="kw3">echo</span> <span class="st0">&quot;Usage :sh <span class="es5">`basename $0 `</span> [start|stop|status|reload|restart]&quot;</span>
+    <span class="kw3">exit</span> <span class="nu0">1</span>
+&nbsp;
+<span class="br0">&#125;</span>
+&nbsp;
+&nbsp;
+<span class="co0"># Check user input argv</span>
+&nbsp;
+<span class="br0">&#91;</span> <span class="re5">-z</span> <span class="re4">$1</span> <span class="br0">&#93;</span> <span class="sy0">&amp;&amp;</span> <span class="kw3">help</span>
+&nbsp;
+<span class="re2">server</span>=<span class="re4">$2</span>
+&nbsp;
+<span class="kw1">case</span> <span class="st0">&quot;$1&quot;</span> <span class="kw1">in</span>
+    start<span class="br0">&#41;</span>
+        start <span class="re4">$2</span>
+        <span class="sy0">;;</span>
+    restart<span class="br0">&#41;</span>
+        stop;
+        <span class="kw2">sleep</span> <span class="nu0">1</span>
+        start
+        <span class="sy0">;;</span>
+    stop<span class="br0">&#41;</span>
+        stop <span class="sy0">&amp;&amp;</span> <span class="kw3">echo</span> <span class="st0">&quot;stopped.&quot;</span>
+        <span class="sy0">;;</span>
+    status<span class="br0">&#41;</span>
+        status
+        <span class="sy0">;;</span>
+    reload<span class="br0">&#41;</span>
+        reload <span class="sy0">&amp;&amp;</span> <span class="kw3">echo</span> <span class="st0">&quot;reload OK.&quot;</span>
+        <span class="sy0">;;</span>
+    <span class="sy0">*</span><span class="br0">&#41;</span>
+        <span class="kw3">help</span>
+        <span class="sy0">;;</span>
+<span class="kw1">esac</span>

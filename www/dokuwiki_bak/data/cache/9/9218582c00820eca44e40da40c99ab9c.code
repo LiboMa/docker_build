@@ -1,0 +1,113 @@
+#!/bin/sh
+# This is script is used for implementing a ssl tunnel via SSH. Forwarding remote port to local port 11945.
+# Wirtten by Libo.Ma @ 2014.2.19 Wed Feb 19 22:59:38 CST 2014
+# Draft version 1.0
+&nbsp;
+curdir=$(cd `dirname $0`;pwd)
+pidfile=$curdir/sshtunnl.pid
+logfile=$curdir/sshtunnl.log
+&nbsp;
+start () {
+&nbsp;
+# Check pid 
+#if [ -f $pidfile ] &amp;&amp; ps aux |grep ssh |grep -q `cat $pidfile`
+if [ -f $pidfile ] &amp;&amp; pgrep -q -F $pidfile # updated on 2015.6.17
+then
+    echo &quot;SSH tunnel is running.&quot;
+    exit 0
+else
+    # Startup running proc
+    #nohup ssh -N -L 11945:54.215.124.210:11945 ronniema@54.215.124.210 -i $HOME/.ssh/ronniema.pam &gt;$logfile 2&gt;&amp;1 &amp;
+    nohup ssh -N -L 31288:127.0.0.1:31288 root@$server -i $HOME/.ssh/id_rsa &gt;$logfile 2&gt;&amp;1 &amp;
+    if [ $? -eq 0 ];then
+        echo &quot;$!&quot; &gt;$pidfile
+        echo &quot;vpn tunnel is up&quot;
+    fi
+fi
+&nbsp;
+}
+&nbsp;
+stop () {
+&nbsp;
+    # Check pid
+&nbsp;
+    # Check pidfile
+    [ ! -f $pidfile ] &amp;&amp; { echo &quot;no running&quot;; return 1; } || pid=`cat $pidfile`
+    # Check running process of ssh tunnel
+    if pgrep -q -F $pidfile # updated on 2015.6.17
+    then
+        kill -KILL $pid &amp;&amp; { rm $pidfile; return 0; }
+    else
+        echo &quot;ssh tunnel not running...&quot;
+        return 1
+    fi
+&nbsp;
+}
+&nbsp;
+reload () {
+&nbsp;
+    # Check pidfile
+    [ ! -f $pidfile ] &amp;&amp; { echo &quot;no running&quot;; exit 1; } || pid=`cat $pidfile`
+&nbsp;
+    # Reload configuration...
+    #if ps aux |grep ssh |grep -q $pid
+    if pgrep -q -F $pidfile # updated on 2015.6.17
+    then
+        kill -HUP $pid &amp;&amp; return 0
+    else
+        echo &quot;ssh tunnel not running...&quot;
+        exit 1
+    fi
+&nbsp;
+}
+&nbsp;
+status () {
+&nbsp;
+    # Check pidfile
+    [ ! -f $pidfile ] &amp;&amp; { echo &quot;no running&quot;; exit 1; } || pid=`cat $pidfile`
+&nbsp;
+    if pgrep -q -F $pidfile # updated on 2015.6.17
+    then
+        echo &quot;Tunnel is running with pid $pid&quot;
+    else
+        echo &quot;Tunnel service NOT running&quot;
+        return 1
+    fi
+}
+&nbsp;
+help() {
+&nbsp;
+    echo &quot;Usage :sh `basename $0 ` [start|stop|status|reload|restart]&quot;
+    exit 1
+&nbsp;
+}
+&nbsp;
+&nbsp;
+# Check user input argv
+&nbsp;
+[ -z $1 ] &amp;&amp; help
+&nbsp;
+server=$2
+&nbsp;
+case &quot;$1&quot; in
+    start)
+        start $2
+        ;;
+    restart)
+        stop;
+        sleep 1
+        start
+        ;;
+    stop)
+        stop &amp;&amp; echo &quot;stopped.&quot;
+        ;;
+    status)
+        status
+        ;;
+    reload)
+        reload &amp;&amp; echo &quot;reload OK.&quot;
+        ;;
+    *)
+        help
+        ;;
+esac

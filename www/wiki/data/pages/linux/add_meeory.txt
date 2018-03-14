@@ -1,0 +1,11 @@
+====== How to add a storage ======
+
+1. extent the tools
+<code shell> 
+#> lvextent -L NumberGB LV</code>
+2. resize the LV
+
+<code shell> 
+#> resize2fs lv </code>
+
+3. no need reboot the 'server'

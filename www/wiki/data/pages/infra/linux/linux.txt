@@ -1,0 +1,27 @@
+===== Linux =====
+This is my test page for Linux
+
+-----
+===== Operations =====
+
+  * [[wiki:named|adf]]
+  * [[linux:add_meeory]]
+  * [[linux:add_memory|add_memory]]
+  * [[linux:share_data]]
+
+===== Monitoring =====
+  * [[ganglia]][[http://beul0028/ganglia|ganglia]]
+  * sitescope
+
+===== Documentation =====
+  * Linux related
+  * security related
+  * ''abc''
+
+
+
+
+----
+
+====== windows====== 
+====== Storage ======

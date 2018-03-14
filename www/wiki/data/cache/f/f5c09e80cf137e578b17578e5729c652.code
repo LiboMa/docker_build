@@ -1,0 +1,20 @@
+<span class="co0">#!/bin/sh </span>
+&nbsp;
+<span class="kw3">help</span> <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+&nbsp;
+<span class="kw3">echo</span> <span class="st0">&quot;Usage: <span class="es5">`basename $0`</span> arg1 arg2&quot;</span>;
+<span class="kw3">exit</span> <span class="nu0">0</span>;
+&nbsp;
+<span class="br0">&#125;</span>
+&nbsp;
+<span class="kw1">while</span> <span class="kw3">getopts</span> a:b:c; opts
+<span class="kw1">do</span>
+   <span class="kw1">case</span> <span class="re1">$opts</span> <span class="kw1">in</span> 
+      a<span class="br0">&#41;</span>
+      <span class="sy0">;;</span>
+      b<span class="br0">&#41;</span><span class="sy0">;;</span>
+      c<span class="br0">&#41;</span><span class="sy0">;;</span>
+      d<span class="br0">&#41;</span><span class="sy0">;;</span>
+      -<span class="sy0">*</span><span class="br0">&#41;</span><span class="sy0">;;</span>
+   <span class="kw1">esac</span>
+<span class="kw1">done</span>

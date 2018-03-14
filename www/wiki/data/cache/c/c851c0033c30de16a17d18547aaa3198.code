@@ -1,0 +1,8 @@
+<span class="co0">#!/bin/sh </span>
+&nbsp;
+<span class="kw3">help</span> <span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span>
+&nbsp;
+<span class="kw3">echo</span> <span class="st0">&quot;Usage: <span class="es5">`basename $0`</span> arg1 arg2&quot;</span>;
+<span class="kw3">exit</span> <span class="nu0">0</span>;
+&nbsp;
+<span class="br0">&#125;</span>
